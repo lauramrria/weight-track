@@ -1,0 +1,39 @@
+<div class="card-grid">
+  <div class="card card-bmi">
+    <h4>Indeks Massa Tubuh (BMI)</h4>
+    <p class="value">{{ result.bmi }}</p>
+    <span class="badge-bmi">{{ result.bmiCategory }}</span>
+  </div>
+
+  <div class="card card-ideal">
+    <h4>Berat Badan Ideal</h4>
+    <p class="value">{{ result.idealWeight }} kg</p>
+    <p class="note">Estimasi proporsional</p>
+  </div>
+
+  <div class="card card-bmr">
+    <h4>BMR & TDEE</h4>
+    <p class="value-sm">BMR: {{ result.bmr }} kkal</p>
+    <p class="value-sm tdee">TDEE: {{ result.tdee }} kkal</p>
+  </div>
+
+  <div class="card card-calorie">
+    <h4>Total Kalori Masuk (FormArray)</h4>
+    <p class="value calorie">{{ result.totalCalories }} kkal</p>
+    <span class="badge-status" [ngClass]="calorieStatusClass">
+      {{ calorieStatus }} {{ calorieBalance | number: '1.0-0' }} kkal
+    </span>
+  </div>
+</div>
+
+<div class="card progress-card">
+  <h3>🎯 Progress Target Berat Badan</h3>
+  <p class="note">Selisih menuju target: <strong>{{ result.weightDifference }} kg</strong></p>
+  <div class="progress-label">
+    <span>Pencapaian</span>
+    <span>{{ result.progressPercentage }}%</span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" [style.width.%]="result.progressPercentage"></div>
+  </div>
+</div>

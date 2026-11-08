@@ -1,0 +1,20 @@
+<div class="meal-row" [formGroup]="itemGroup">
+  <span class="row-number">#{{ itemIndex + 1 }}</span>
+
+  <div class="field name-field">
+    <input type="text" formControlName="foodName" placeholder="Nama Makanan"
+           [class.invalid]="isFoodNameInvalid || isDuplicate">
+    <small class="error" *ngIf="isFoodNameInvalid">Nama makanan wajib diisi</small>
+    <small class="error" *ngIf="isDuplicate">Nama menu duplikat</small>
+  </div>
+
+  <div class="field cal-field">
+    <input type="number" formControlName="calories" placeholder="Kalori (kcal)"
+           [class.invalid]="isCaloriesInvalid">
+    <small class="error" *ngIf="isCaloriesInvalid">Kalori minimal 1</small>
+  </div>
+
+  <button type="button" class="btn-remove" (click)="onRemoveClick()" [disabled]="isRemoveLocked">
+    Hapus
+  </button>
+</div>

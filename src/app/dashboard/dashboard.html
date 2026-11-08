@@ -1,0 +1,117 @@
+<div class="dashboard-container" style="padding: 20px;">
+  <h2>📊 Dashboard Kalkulator & Analisis Kesehatan Pintar</h2>
+  <p class="subtitle" style="color: #666; margin-bottom: 25px;">Sistem pemroses data instan (Non-CRUD) dengan FormArray dinamis & Nested Loop.</p>
+
+  <div class="card input-section" style="background: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 30px;">
+    <h3 style="margin-bottom: 20px; color: #2c3e50;">📥 Parameter Tubuh & Simulasi Asupan Harian</h3>
+
+    <form [formGroup]="calcForm" (ngSubmit)="calculateAll()">
+
+      <!-- Parameter tubuh -->
+      <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px;">
+        <div>
+          <label><strong>Berat Badan Awal (kg):</strong></label>
+          <input type="number" formControlName="startWeight" style="width:100%; padding: 8px; margin-top:5px; border:1px solid #ddd; border-radius:4px;">
+        </div>
+        <div>
+          <label><strong>Berat Badan Saat Ini (kg):</strong></label>
+          <input type="number" formControlName="currentWeight" style="width:100%; padding: 8px; margin-top:5px; border:1px solid #ddd; border-radius:4px;">
+        </div>
+        <div>
+          <label><strong>Target Berat (kg):</strong></label>
+          <input type="number" formControlName="targetWeight" style="width:100%; padding: 8px; margin-top:5px; border:1px solid #ddd; border-radius:4px;">
+        </div>
+        <div>
+          <label><strong>Tinggi Badan (cm):</strong></label>
+          <input type="number" formControlName="height" style="width:100%; padding: 8px; margin-top:5px; border:1px solid #ddd; border-radius:4px;">
+        </div>
+        <div>
+          <label><strong>Usia (tahun):</strong></label>
+          <input type="number" formControlName="age" style="width:100%; padding: 8px; margin-top:5px; border:1px solid #ddd; border-radius:4px;">
+        </div>
+        <div>
+          <label><strong>Jenis Kelamin:</strong></label>
+          <select formControlName="gender" style="width:100%; padding: 8px; margin-top:5px; border:1px solid #ddd; border-radius:4px;">
+            <option value="male">Pria</option>
+            <option value="female">Wanita</option>
+          </select>
+        </div>
+        <div>
+          <label><strong>Aktivitas Fisik:</strong></label>
+          <select formControlName="activityLevel" style="width:100%; padding: 8px; margin-top:5px; border:1px solid #ddd; border-radius:4px;">
+            <option [value]="1.2">Jarang Beraktivitas (1.2)</option>
+            <option [value]="1.375">Aktivitas Ringan (1.375)</option>
+            <option [value]="1.55">Aktivitas Sedang (1.55)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- FormArray + Nested Loops -->
+      <div style="margin-bottom: 25px; background: #fdfdfd; padding: 15px; border: 1px solid #eaeaea; border-radius: 8px;">
+        <h4 style="color: #2c3e50; margin-bottom: 10px;">🥗 Simulasi Asupan Makanan (FormArray & Nested Loops)</h4>
+        <p style="font-size: 13px; color: #7f8c8d; margin-bottom: 15px;">Maksimal 5 kategori dan 5 menu per kategori. Total kalori dihitung secara real-time.</p>
+
+        <!-- Loop pertama: kategori -->
+        <div *ngFor="let catGroup of categoryGroups; let catIndex = index; trackBy: trackByCategory"
+             [formGroup]="catGroup"
+             style="margin-bottom: 15px; padding: 12px; background: #fff; border: 1px solid #dcdcdc; border-radius: 6px;">
+
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <input type="text" formControlName="categoryName" style="font-weight: bold; padding: 6px; border: 1px solid #ccc; border-radius: 4px; flex: 1;">
+            <div style="display: flex; gap: 8px;">
+              <button type="button" (click)="addItemRow(catIndex)" [disabled]="!canAddItem(catIndex)"
+                      style="background: #1abc9c; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">+ Tambah Menu</button>
+              <button type="button" (click)="removeCategory(catIndex)" [disabled]="!canRemoveCategory"
+                      style="background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">Hapus Kategori</button>
+            </div>
+          </div>
+
+          <!-- Loop bertingkat: item menu dengan index, first, last, trackBy -->
+          <app-meal-item-row
+            *ngFor="let itemGroup of getItemGroups(catIndex); let itemIndex = index; let isFirst = first; let isLast = last; trackBy: trackByItem"
+            [itemGroup]="itemGroup"
+            [itemIndex]="itemIndex"
+            [isFirst]="isFirst"
+            [isLast]="isLast"
+            [isDuplicate]="isDuplicateItem(catIndex, itemIndex)"
+            (removeRequested)="removeItemRow(catIndex, $event)">
+          </app-meal-item-row>
+        </div>
+
+        <button type="button" (click)="addCategory()" [disabled]="!canAddCategory"
+                style="background: #3498db; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px;">+ Tambah Kategori</button>
+
+        <p style="margin-top: 15px; font-weight: bold; color: #16a085;">
+          Total kalori masuk (real-time): {{ totalMealCalories }} kkal
+        </p>
+      </div>
+
+      <!-- Banner duplikasi -->
+      <div *ngIf="hasDuplicateFood" style="padding: 10px; background: #ffebee; color: #c62828; border-radius: 6px; margin-bottom: 15px; font-weight: 500;">
+        ⚠️ Peringatan: nama menu duplikat ditemukan: {{ duplicateFoodNames.join(', ') }}. Mohon gunakan nama yang unik.
+      </div>
+
+      <!-- Alert error -->
+      <div *ngIf="hasError" style="padding: 10px; background: #ffebee; color: #c62828; border-radius: 6px; margin-bottom: 15px; font-weight: 500;">
+        {{ errorMessage }}
+      </div>
+
+      <button type="submit" style="background: #1abc9c; color: white; border: none; padding: 12px 25px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer;">
+        🚀 Hitung Sekarang
+      </button>
+    </form>
+  </div>
+
+  <!-- Template Branching: Populated State vs Empty State -->
+  <div class="results-section">
+    <h3 style="margin-bottom: 20px; color: #2c3e50;">📈 Hasil Analisis Mesin Kalkulator</h3>
+
+    <app-result-panel *ngIf="result && hasCalculated; else emptyState" [result]="result"></app-result-panel>
+
+    <ng-template #emptyState>
+      <div style="background: #ffffff; padding: 30px; border-radius: 12px; text-align: center; border: 1px dashed #bdc3c7;">
+        <p style="color: #7f8c8d; font-style: italic;">Belum ada hasil analisis. Isi form di atas dengan data yang valid lalu klik "Hitung Sekarang".</p>
+      </div>
+    </ng-template>
+  </div>
+</div>

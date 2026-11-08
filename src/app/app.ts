@@ -1,12 +1,17 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { DashboardComponent } from './dashboard/dashboard';
 
 @Component({
-  imports: [RouterOutlet],
   selector: 'app-root',
-  styleUrl: './app.css',
+  standalone: true,
+  imports: [
+    CommonModule,
+    DashboardComponent
+  ],
   templateUrl: './app.html',
+  styleUrls: ['./app.css']
 })
 export class App {
-  protected readonly title = signal('weight-track');
+  title = 'WeightTrack';
 }
